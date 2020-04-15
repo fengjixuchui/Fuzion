@@ -5,10 +5,11 @@
 #include "Utils/util.h"
 #include "fonts.h"
 #include "Hooks/hooks.h"
-#include "glhook.h"
+#include "sdlhook.h"
 
 #include "EventListener.h"
 #include "Utils/xorstring.h"
+#include "Utils/bonemaps.h"
 
 #include "Hacks/nosmoke.h"
 #include "Hacks/tracereffect.h"
@@ -29,8 +30,10 @@ std::vector<VMT*> createdVMTs;
 void MainThread()
 {
 	Interfaces::FindInterfaces();
-    //Interfaces::DumpInterfaces();
+    Interfaces::DumpInterfaces();
+
     cvar->ConsoleDPrintf(XORSTR("Loading...\n"));
+
 	Hooker::FindSetNamedSkybox();
 	Hooker::FindViewRender();
 	Hooker::FindSDLInput();
@@ -51,18 +54,21 @@ void MainThread()
 	Hooker::FindLoadFromBuffer();
 	//Hooker::FindVstdlibFunctions();
 	Hooker::FindOverridePostProcessingDisable();
-	Hooker::HookSwapWindow();
-	Hooker::HookPollEvent();
     Hooker::FindPanelArrayOffset();
     Hooker::FindPlayerAnimStateOffset();
     Hooker::FindPlayerAnimOverlayOffset();
 	Hooker::FindSequenceActivity();
     Hooker::FindAbsFunctions();
+    Hooker::FindItemSystem();
+
+    SDL2::HookSwapWindow();
+    SDL2::HookPollEvent();
 
     Offsets::GetNetVarOffsets();
     Fonts::SetupFonts();
 
     clientVMT = new VMT(client);
+    clientVMT->HookVM(Hooks::LevelInitPostEntity, 6);
     clientVMT->HookVM(Hooks::FrameStageNotify, 37);
 	clientVMT->ApplyVMT();
 
@@ -126,6 +132,11 @@ void MainThread()
 	//Settings::LoadSettings();
 
 	srand(time(nullptr)); // Seed random # Generator so we can call rand() later
+
+    // Build bonemaps here if we are already in-game
+    if( engine->IsInGame() ){
+        BoneMaps::BuildAllBonemaps();
+    }
 
     cvar->ConsoleColorPrintf(ColorRGBA(0, 225, 0), XORSTR("\nFuzion Successfully loaded.\n"));
 }

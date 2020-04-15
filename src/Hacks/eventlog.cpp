@@ -11,12 +11,6 @@
 
 std::vector<std::pair<std::string, long>> logToShow;
 long lastLogTimestamp = 0;
-bool Settings::Eventlog::showEnemies = false;
-bool Settings::Eventlog::showTeammates = false;
-bool Settings::Eventlog::showLocalplayer = false;
-float Settings::Eventlog::duration = 5000;
-float Settings::Eventlog::lines = 10;
-ColorVar Settings::Eventlog::color = ImColor( 255, 79, 56, 255 );
 
 void Eventlog::Paint( ) {
 	if ( !Settings::ESP::enabled )
@@ -168,10 +162,12 @@ void Eventlog::FireGameEvent(IGameEvent* event)
 		std::string deletefromname = "weapon_";
 		std::string weaponname = event->GetString(XORSTR("weapon"));
 		std::string::size_type whereisstring = weaponname.find(deletefromname);
-		weaponname.erase(whereisstring, deletefromname.length());
-		boughtLog += weaponname;		
+		if( whereisstring != std::string::npos ){
+            weaponname.erase(whereisstring, deletefromname.length());
+            boughtLog += weaponname;
 
-		logToShow.insert(logToShow.begin(), std::pair<std::string, long>(boughtLog, now));
+            logToShow.insert(logToShow.begin(), std::pair<std::string, long>(boughtLog, now));
+		}
 
 	} else if (strstr(event->GetName(), XORSTR("enter_bombzone"))){
 

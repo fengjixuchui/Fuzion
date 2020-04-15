@@ -8,6 +8,7 @@
 #include "../Utils/draw.h"
 #include "../Utils/math.h"
 #include "../Utils/entity.h"
+#include "../Utils/bonemaps.h"
 #include "../Utils/xorstring.h"
 #include "../Hooks/hooks.h"
 
@@ -18,140 +19,9 @@
 #include <deque>
 #include <mutex>
 
-bool Settings::ESP::enabled = false;
-ButtonCode_t Settings::ESP::key = ButtonCode_t::KEY_Z;
-TeamColorType Settings::ESP::teamColorType = TeamColorType::RELATIVE;
-HealthColorVar Settings::ESP::enemyColor = ImColor(255, 0, 0, 255);
-HealthColorVar Settings::ESP::enemyVisibleColor = ImColor(255, 255, 0, 255);
-HealthColorVar Settings::ESP::allyColor = ImColor(0, 0, 255, 255);
-HealthColorVar Settings::ESP::allyVisibleColor = ImColor(0, 255, 0, 255);
-HealthColorVar Settings::ESP::tColor = ImColor(255, 0, 0, 255);
-HealthColorVar Settings::ESP::tVisibleColor = ImColor(255, 255, 0, 255);
-HealthColorVar Settings::ESP::ctColor = ImColor(0, 0, 255, 255);
-HealthColorVar Settings::ESP::ctVisibleColor = ImColor(0, 255, 0, 255);
-HealthColorVar Settings::ESP::localplayerColor = ImColor(0, 255, 255, 255);
-ColorVar Settings::ESP::bombColor = ImColor(156, 39, 176, 255);
-ColorVar Settings::ESP::bombDefusingColor = ImColor(213, 0, 249, 255);
-ColorVar Settings::ESP::hostageColor = ImColor(121, 85, 72, 255);
-ColorVar Settings::ESP::defuserColor = ImColor(49, 27, 146, 255);
-ColorVar Settings::ESP::weaponColor = ImColor(158, 158, 158, 255);
-ColorVar Settings::ESP::chickenColor = ImColor(255, 193, 7, 255);
-ColorVar Settings::ESP::fishColor = ImColor(255, 255, 255, 255);
-ColorVar Settings::ESP::smokeColor = ImColor(97, 97, 97, 255);
-ColorVar Settings::ESP::decoyColor = ImColor(2255, 152, 0, 255);
-ColorVar Settings::ESP::flashbangColor = ImColor(255, 235, 59, 255);
-ColorVar Settings::ESP::grenadeColor = ImColor(244, 67, 54, 255);
-ColorVar Settings::ESP::molotovColor = ImColor(205, 32, 31, 255);
-ColorVar Settings::ESP::mineColor = ImColor(205, 32, 31, 255);
-ColorVar Settings::ESP::chargeColor = ImColor(205, 32, 31, 255);
-ColorVar Settings::ESP::allyInfoColor = ImColor(255, 255, 255, 255);
-ColorVar Settings::ESP::enemyInfoColor = ImColor(255, 255, 255, 255);
-ColorVar Settings::ESP::Skeleton::allyColor = ImColor(255, 255, 255, 255);
-ColorVar Settings::ESP::Skeleton::enemyColor = ImColor(255, 255, 255, 255);
-ColorVar Settings::ESP::Spread::color = ImColor(15, 200, 45, 255);
-ColorVar Settings::ESP::Spread::spreadLimitColor = ImColor(20, 5, 150, 255);
-bool Settings::ESP::Glow::enabled = false;
-HealthColorVar Settings::ESP::Glow::allyColor = ImColor(0, 0, 255, 255);
-HealthColorVar Settings::ESP::Glow::enemyColor = ImColor(255, 0, 0, 255);
-HealthColorVar Settings::ESP::Glow::enemyVisibleColor = ImColor(255, 255, 0, 255);
-HealthColorVar Settings::ESP::Glow::localplayerColor = ImColor(0, 255, 255, 255);
-ColorVar Settings::ESP::Glow::weaponColor = ImColor(158, 158, 158, 255);
-ColorVar Settings::ESP::Glow::grenadeColor = ImColor(96, 125, 139, 255);
-ColorVar Settings::ESP::Glow::defuserColor = ImColor(49, 27, 146, 255);
-ColorVar Settings::ESP::Glow::chickenColor = ImColor(255, 193, 7, 255);
-bool Settings::ESP::Filters::legit = false;
-bool Settings::ESP::Filters::visibilityCheck = false;
-bool Settings::ESP::Filters::smokeCheck = false;
-bool Settings::ESP::Filters::enemies = false;
-bool Settings::ESP::Filters::allies = false;
-bool Settings::ESP::Filters::bomb = false;
-bool Settings::ESP::Filters::hostages = false;
-bool Settings::ESP::Filters::defusers = false;
-bool Settings::ESP::Filters::weapons = false;
-bool Settings::ESP::Filters::chickens = false;
-bool Settings::ESP::Filters::fishes = false;
-bool Settings::ESP::Filters::throwables = false;
-bool Settings::ESP::Filters::localplayer = false;
-bool Settings::ESP::Info::name = false;
-bool Settings::ESP::Info::clan = false;
-bool Settings::ESP::Info::steamId = false;
-bool Settings::ESP::Info::rank = false;
-bool Settings::ESP::Info::health = false;
-bool Settings::ESP::Info::armor = false;
-bool Settings::ESP::Info::weapon = false;
-bool Settings::ESP::Info::scoped = false;
-bool Settings::ESP::Info::reloading = false;
-bool Settings::ESP::Info::flashed = false;
-bool Settings::ESP::Info::planting = false;
-bool Settings::ESP::Info::hasDefuser = false;
-bool Settings::ESP::Info::defusing = false;
-bool Settings::ESP::Info::grabbingHostage = false;
-bool Settings::ESP::Info::rescuing = false;
-bool Settings::ESP::Info::location = false;
-bool Settings::ESP::Info::money = false;
-bool Settings::ESP::Boxes::enabled = false;
-BoxType Settings::ESP::Boxes::type = BoxType::FRAME_2D;
-bool Settings::ESP::Sprite::enabled = false;
-SpriteType Settings::ESP::Sprite::type = SpriteType::SPRITE_TUX;
-bool Settings::ESP::Bars::enabled = false;
-BarColorType Settings::ESP::Bars::colorType = BarColorType::HEALTH_BASED;
-BarType Settings::ESP::Bars::type = BarType::HORIZONTAL;
-bool Settings::ESP::Tracers::enabled = false;
-TracerType Settings::ESP::Tracers::type = TracerType::BOTTOM;
-bool Settings::ESP::BulletTracers::enabled = false;
-bool Settings::ESP::FOVCrosshair::enabled = false;
-bool Settings::ESP::FOVCrosshair::filled = false;
-ColorVar Settings::ESP::FOVCrosshair::color = ImColor(255, 0, 0, 255);
-bool Settings::ESP::Skeleton::enabled = false;
-bool Settings::ESP::Sounds::enabled = false;
-int Settings::ESP::Sounds::time = 1000;
-bool Settings::NoScopeBorder::enabled = false;
-bool Settings::ESP::HeadDot::enabled = false;
-float Settings::ESP::HeadDot::size = 2.f;
-
-bool Settings::ESP::Spread::enabled = false;
-bool Settings::ESP::Spread::spreadLimit = false;
-
-int Settings::ESP::DangerZone::drawDist = 2000;
-bool Settings::ESP::DangerZone::drawDistEnabled = false;
-bool Settings::ESP::DangerZone::upgrade = false;
-bool Settings::ESP::DangerZone::lootcrate = false;
-bool Settings::ESP::DangerZone::radarjammer = false;
-bool Settings::ESP::DangerZone::barrel = false;
-bool Settings::ESP::DangerZone::ammobox = false;
-bool Settings::ESP::DangerZone::safe = false;
-bool Settings::ESP::DangerZone::dronegun = false;
-bool Settings::ESP::DangerZone::drone = false;
-bool Settings::ESP::DangerZone::cash = false;
-bool Settings::ESP::DangerZone::tablet = false;
-bool Settings::ESP::DangerZone::healthshot = false;
-bool Settings::ESP::DangerZone::melee = false;
-ColorVar Settings::ESP::DangerZone::upgradeColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::lootcrateColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::radarjammerColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::barrelColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::ammoboxColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::safeColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::dronegunColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::droneColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::cashColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::tabletColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::healthshotColor = ImColor(255, 0, 0, 255);
-ColorVar Settings::ESP::DangerZone::meleeColor = ImColor(255, 0, 0, 255);
-
-bool Settings::Debug::AutoWall::debugView = false;
-bool Settings::Debug::AutoAim::drawTarget = false;
-Vector Settings::Debug::AutoAim::target = {0, 0, 0};
-bool Settings::Debug::BoneMap::draw = false;
-bool Settings::Debug::BoneMap::justDrawDots = false;
-bool Settings::Debug::AnimLayers::draw = false;
-
 /* The engine->WorldToScreenMatrix() function can't be called at all times
  * So this is Updated in the Paint Hook for us */
-VMatrix vMatrix = {69.0f,69.0f,69.0f,69.0f,
-				   69.0f,69.0f,69.0f,69.0f,
-				   69.0f,69.0f,69.0f,69.0f,
-				   69.0f,69.0f,69.0f,69.0f};
+VMatrix vMatrix;
 
 Vector2D barsSpacing = Vector2D( 0, 0 );
 
@@ -647,7 +517,7 @@ static void DrawTracer( C_BasePlayer* player ) {
 	else if ( Settings::ESP::Tracers::type == TracerType::BOTTOM )
 		y = Paint::engineHeight;
 
-	bool bIsVisible = Entity::IsVisible( player, ( int ) Bone::BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck );
+	bool bIsVisible = Entity::IsVisible( player, CONST_BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck );
 	Draw::AddLine( ( int ) ( src.x ), ( int ) ( src.y ), x, y, ESP::GetESPPlayerColor( player, bIsVisible ) );
 }
 static void DrawAimbotSpot( ) {
@@ -682,15 +552,22 @@ static void DrawBoneMap( C_BasePlayer* player ) {
 	static Vector bone3D;
 	studiohdr_t* pStudioModel = modelInfo->GetStudioModel( player->GetModel() );
 
+	if( !pStudioModel )
+		return;
+
 	for( int i = 1; i < pStudioModel->numbones; i++ ){
 		bone3D = player->GetBonePosition( i );
-		if ( debugOverlay->ScreenPosition( bone3D, bone2D ) )
+        mstudiobone_t* pBone = pStudioModel->pBone( i );
+		if( !pBone )
+			continue;
+
+        if ( debugOverlay->ScreenPosition( bone3D, bone2D ) )
 			continue;
 		if( Settings::Debug::BoneMap::justDrawDots ){
 			Draw::AddCircleFilled( bone2D.x, bone2D.y, 2.0f, ImColor( 255, 0, 255, 255 ), 10 );
 		} else {
-			char buffer[32];
-			snprintf(buffer, 32, "%d", i);
+			char buffer[72];
+			snprintf(buffer, 72, "%d - %s", i, pBone->pszName());
 			Draw::AddText( bone2D.x, bone2D.y,buffer, ImColor( 255, 0, 255, 255 ) );
 		}
 	}
@@ -699,11 +576,11 @@ static void DrawBoneMap( C_BasePlayer* player ) {
 	cvar->ConsoleDPrintf( XORSTR( "(%s)-ModelName: %s, numBones: %d\n" ), entityInformation.name, pStudioModel->name, pStudioModel->numbones );
 }
 static void DrawAutoWall(C_BasePlayer *player) {
-	const std::map<int, int> *modelType = Util::GetModelTypeBoneMap(player);
+	const std::unordered_map<int, int> *modelType = BoneMaps::GetModelTypeBoneMap(player);
 	for( int i = 0; i < 31; i++ )
 	{
 		auto bone = modelType->find(i);
-		if( bone == modelType->end() || bone->second <= (int)Bone::INVALID )
+		if( bone == modelType->end() || bone->second <= BONE_INVALID )
 			continue;
 		Vector bone2D;
 		Vector bone3D = player->GetBonePosition(bone->second);
@@ -772,15 +649,16 @@ static void DrawAutoWall(C_BasePlayer *player) {
 }
 
 static void DrawHeaddot( C_BasePlayer* player ) {
+    Vector head2D;
+    Vector head3D;
 
-	Vector head2D;
-	Vector head3D = player->GetBonePosition( ( int ) Bone::BONE_HEAD );
+    head3D = player->GetBonePosition( CONST_BONE_HEAD );
 	if ( debugOverlay->ScreenPosition( Vector( head3D.x, head3D.y, head3D.z ), head2D ) )
 		return;
 
 	bool bIsVisible = false;
 	if ( Settings::ESP::Filters::visibilityCheck || Settings::ESP::Filters::legit )
-		bIsVisible = Entity::IsVisible( player, ( int ) Bone::BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck );
+		bIsVisible = Entity::IsVisible( player, CONST_BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck );
 
 	Draw::AddCircleFilled( head2D.x, head2D.y, Settings::ESP::HeadDot::size, ESP::GetESPPlayerColor( player, bIsVisible ), 10 );
 }
@@ -1016,7 +894,7 @@ static void DrawPlayer(C_BasePlayer* player)
 	bool bIsVisible = false;
 	if (Settings::ESP::Filters::visibilityCheck || Settings::ESP::Filters::legit)
 	{
-		bIsVisible = Entity::IsVisible(player, (int)Bone::BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck);
+		bIsVisible = Entity::IsVisible(player, CONST_BONE_HEAD, 180.f, Settings::ESP::Filters::smokeCheck);
 		if (!bIsVisible && Settings::ESP::Filters::legit)
 			return;
 	}
@@ -1433,7 +1311,7 @@ static void DrawGlow()
 			{
 				if (!Entity::IsTeamMate(player, localplayer))
 				{
-					if (Entity::IsVisible(player, (int)Bone::BONE_HEAD))
+					if (Entity::IsVisible(player, CONST_BONE_HEAD))
 						color = Settings::ESP::Glow::enemyVisibleColor.Color(player);
 					else
 						color = Settings::ESP::Glow::enemyColor.Color(player);

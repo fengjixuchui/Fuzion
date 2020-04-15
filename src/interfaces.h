@@ -37,6 +37,7 @@ extern CInput* input;
 extern IPanoramaUIEngine* panoramaEngine;
 extern IFileSystem* fileSystem;
 extern IGameTypes* gameTypes;
+extern CItemSystem* itemSystem;
 
 extern VMT* panelVMT;
 extern VMT* clientVMT;
@@ -69,12 +70,6 @@ extern SetNamedSkyBoxFn SetNamedSkyBox;
 extern int* nPredictionRandomSeed;
 extern CMoveData* g_MoveData;
 extern bool* s_bOverridePostProcessingDisable;
-
-extern uintptr_t oSwapWindow;
-extern uintptr_t* swapWindowJumpAddress;
-
-extern uintptr_t oPollEvent;
-extern uintptr_t* polleventJumpAddress;
 
 namespace Interfaces
 {

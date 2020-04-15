@@ -208,7 +208,7 @@ void Settings::LoadDefaultsOrSave(std::string path)
 		weaponSetting[XORSTR("Prediction")][XORSTR("enabled")] = i.second.predEnabled;
 		weaponSetting[XORSTR("ScopeControl")][XORSTR("Enabled")] = i.second.scopeControlEnabled;
 
-		for (int bone = (int) DesiredBones::BONE_PELVIS; bone <= (int) DesiredBones::BONE_RIGHT_SOLE; bone++)
+		for (int bone = BONE_PELVIS; bone <= BONE_RIGHT_SOLE; bone++)
 			weaponSetting[XORSTR("DesiredBones")][XORSTR("Bones")][bone] = i.second.desiredBones[bone];
 
 		weaponSetting[XORSTR("AutoAim")][XORSTR("RealDistance")] = i.second.autoAimRealDistance;
@@ -251,6 +251,8 @@ void Settings::LoadDefaultsOrSave(std::string path)
 
 	settings[XORSTR("ESP")][XORSTR("enabled")] = Settings::ESP::enabled;
 	settings[XORSTR("ESP")][XORSTR("backend")] = (int)Settings::ESP::backend;
+    settings[XORSTR("UI")][XORSTR("imGuiAliasedLines")] = Settings::UI::imGuiAliasedLines;
+    settings[XORSTR("UI")][XORSTR("imGuiAliasedFill")] = Settings::UI::imGuiAliasedFill;
 	settings[XORSTR("ESP")][XORSTR("key")] = Util::GetButtonName(Settings::ESP::key);
 	LoadColor(settings[XORSTR("ESP")][XORSTR("enemy_color")], Settings::ESP::enemyColor);
 	LoadColor(settings[XORSTR("ESP")][XORSTR("enemy_visible_color")], Settings::ESP::enemyVisibleColor);
@@ -711,7 +713,7 @@ void Settings::LoadConfig(std::string path)
 				.scopeControlEnabled = weaponSetting[XORSTR( "ScopeControl" )][XORSTR( "Enabled" )].asBool(),
 
 				.engageLockTTR = weaponSetting[XORSTR( "engageLockTTR" )].asInt(),
-				.bone = (Bone) weaponSetting[XORSTR( "TargetBone" )].asInt(),
+				.bone = weaponSetting[XORSTR( "TargetBone" )].asInt(),
 				.smoothType = (SmoothType) weaponSetting[XORSTR( "Smooth" )][XORSTR( "Type" )].asInt(),
 				.aimkey = Util::GetButtonCode(weaponSetting[XORSTR( "AimKey" )].asCString()),
 				.smoothAmount = weaponSetting[XORSTR( "Smooth" )][XORSTR( "Amount" )].asFloat(),
@@ -726,7 +728,7 @@ void Settings::LoadConfig(std::string path)
 				.spreadLimit = weaponSetting[XORSTR( "SpreadLimit" )][XORSTR( "Value" )].asFloat(),
 		};
 
-		for (int bone = (int) DesiredBones::BONE_PELVIS; bone <= (int) DesiredBones::BONE_RIGHT_SOLE; bone++)
+		for (int bone = BONE_PELVIS; bone <= BONE_RIGHT_SOLE; bone++)
 			weapon.desiredBones[bone] = weaponSetting[XORSTR("DesiredBones")][XORSTR("Bones")][bone].asBool();
 		Settings::Aimbot::weapons.at(weaponID) = weapon;
 	}
@@ -766,6 +768,8 @@ void Settings::LoadConfig(std::string path)
 
 	GetVal(settings[XORSTR("ESP")][XORSTR("enabled")], &Settings::ESP::enabled);
 	GetVal(settings[XORSTR("ESP")][XORSTR("backend")], (int*)&Settings::ESP::backend);
+    GetVal(settings[XORSTR("UI")][XORSTR("imGuiAliasedLines")], &Settings::UI::imGuiAliasedLines);
+    GetVal(settings[XORSTR("UI")][XORSTR("imGuiAliasedFill")], &Settings::UI::imGuiAliasedFill);
 	GetButtonCode(settings[XORSTR("ESP")][XORSTR("key")], &Settings::ESP::key);
 	GetVal(settings[XORSTR("ESP")][XORSTR("enemy_color")], &Settings::ESP::enemyColor);
 	GetVal(settings[XORSTR("ESP")][XORSTR("enemy_visible_color")], &Settings::ESP::enemyVisibleColor);

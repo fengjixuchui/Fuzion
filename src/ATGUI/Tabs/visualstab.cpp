@@ -71,17 +71,12 @@ void Visuals::RenderTab()
 
 	ImGui::Columns(2, nullptr, true);
 	{
-		ImGui::Checkbox(XORSTR("Enabled"), &Settings::ESP::enabled);
+        ImGui::Checkbox(XORSTR("Enabled"), &Settings::ESP::enabled);
         ImGui::Combo( XORSTR( "##BACKENDTYPE" ), (int*)&Settings::ESP::backend, BackendTypes, IM_ARRAYSIZE( BackendTypes ) );
-
-        ImGui::NextColumn();
-		ImGui::Text(XORSTR("Only on Key"));
-		UI::KeyBindButton(&Settings::ESP::key);
-	}
-	ImGui::Separator();
-
-	ImGui::Columns(2, nullptr, true);
-	{
+        if( Settings::ESP::backend == DrawingBackend::IMGUI ){
+            ImGui::Checkbox( XORSTR( "Aliased Lines"), &Settings::UI::imGuiAliasedLines );
+            ImGui::Checkbox( XORSTR( "Aliased Fill"), &Settings::UI::imGuiAliasedFill );
+        }
 		ImGui::BeginChild(XORSTR("COL1"), ImVec2(0, 0), true);
 		{
 			ImGui::Text(XORSTR("ESP"));
@@ -237,6 +232,8 @@ void Visuals::RenderTab()
 
 	ImGui::NextColumn();
 	{
+        ImGui::Text(XORSTR("Only on Key"));
+        UI::KeyBindButton(&Settings::ESP::key);
 		ImGui::BeginChild(XORSTR("Chams"), ImVec2(0, 0), true);
 		{
 			ImGui::Text(XORSTR("Crosshair"));
@@ -461,6 +458,7 @@ void Visuals::RenderTab()
 				ImGui::Checkbox(XORSTR("BoneMap Debug"), &Settings::Debug::BoneMap::draw);
 				if( Settings::Debug::BoneMap::draw )
 					ImGui::Checkbox(XORSTR("Just Dots"), &Settings::Debug::BoneMap::justDrawDots);
+				ImGui::SliderInt(XORSTR("Test Model ID"), &Settings::Debug::BoneMap::modelID, 1253, 1350, XORSTR("Model ID: %0.f") );
 			}
 			ImGui::Columns(1);
 			ImGui::Separator();

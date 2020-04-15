@@ -4,62 +4,9 @@
 #include "../Utils/xorstring.h"
 #include "../Utils/math.h"
 #include "../Utils/entity.h"
+#include "../Utils/bonemaps.h"
 #include "../settings.h"
 #include "../interfaces.h"
-
-
-// Default aimbot settings
-bool Settings::Aimbot::enabled = false;
-bool Settings::Aimbot::silent = false;
-bool Settings::Aimbot::friendly = false;
-Bone Settings::Aimbot::bone = Bone::BONE_HEAD;
-ButtonCode_t Settings::Aimbot::aimkey = ButtonCode_t::MOUSE_MIDDLE;
-bool Settings::Aimbot::aimkeyOnly = false;
-bool Settings::Aimbot::Smooth::enabled = false;
-float Settings::Aimbot::Smooth::value = 0.5f;
-SmoothType Settings::Aimbot::Smooth::type = SmoothType::SLOW_END;
-bool Settings::Aimbot::ErrorMargin::enabled = false;
-float Settings::Aimbot::ErrorMargin::value = 0.0f;
-bool Settings::Aimbot::AutoAim::enabled = false;
-float Settings::Aimbot::AutoAim::fov = 180.0f;
-bool Settings::Aimbot::AutoAim::realDistance = false;
-bool Settings::Aimbot::AutoAim::closestBone = false;
-bool Settings::Aimbot::AutoAim::desiredBones[] = {true, true, true, true, true, true, true, // center mass
-							  false, false, false, false, false, false, false, // left arm
-							  false, false, false, false, false, false, false, // right arm
-							  false, false, false, false, false, // left leg
-							  false, false, false, false, false  // right leg
-};
-bool Settings::Aimbot::AutoAim::engageLock = false;
-bool Settings::Aimbot::AutoAim::engageLockTR = false; // engage lock Target Reacquisition ( re-target after getting a kill when spraying ).
-int Settings::Aimbot::AutoAim::engageLockTTR = 700; // Time to Target Reacquisition in ms
-bool Settings::Aimbot::AutoWall::enabled = false;
-float Settings::Aimbot::AutoWall::value = 10.0f;
-bool Settings::Aimbot::AimStep::enabled = false;
-float Settings::Aimbot::AimStep::min = 25.0f;
-float Settings::Aimbot::AimStep::max = 35.0f;
-bool Settings::Aimbot::AutoPistol::enabled = false;
-bool Settings::Aimbot::AutoShoot::enabled = false;
-bool Settings::Aimbot::AutoShoot::velocityCheck = false;
-bool Settings::Aimbot::AutoShoot::autoscope = false;
-bool Settings::Aimbot::RCS::enabled = false;
-bool Settings::Aimbot::RCS::always_on = false;
-float Settings::Aimbot::RCS::valueX = 2.0f;
-float Settings::Aimbot::RCS::valueY = 2.0f;
-bool Settings::Aimbot::AutoCrouch::enabled = false;
-bool Settings::Aimbot::NoShoot::enabled = false;
-bool Settings::Aimbot::IgnoreJump::enabled = false;
-bool Settings::Aimbot::IgnoreEnemyJump::enabled = false;
-bool Settings::Aimbot::SmokeCheck::enabled = false;
-bool Settings::Aimbot::FlashCheck::enabled = false;
-bool Settings::Aimbot::SpreadLimit::enabled = false;
-float Settings::Aimbot::SpreadLimit::value = 0.1f;
-bool Settings::Aimbot::Smooth::Salting::enabled = false;
-float Settings::Aimbot::Smooth::Salting::multiplier = 0.0f;
-bool Settings::Aimbot::AutoSlow::enabled = false;
-bool Settings::Aimbot::AutoSlow::goingToSlow = false;
-bool Settings::Aimbot::Prediction::enabled = false;
-bool Settings::Aimbot::ScopeControl::enabled = false;
 
 bool Aimbot::aimStepInProgress = false;
 std::vector<int64_t> Aimbot::friends = { };
@@ -71,10 +18,6 @@ QAngle RCSLastPunch;
 
 int Aimbot::targetAimbot = -1;
 const int headVectors = 11;
-
-std::unordered_map<ItemDefinitionIndex, AimbotWeapon_t, Util::IntHash<ItemDefinitionIndex>> Settings::Aimbot::weapons = {
-		{ ItemDefinitionIndex::INVALID, defaultSettings },
-};
 
 static QAngle ApplyErrorToAngle(QAngle* angles, float margin)
 {
@@ -132,7 +75,7 @@ static bool HeadMultiPoint(C_BasePlayer *player, Vector points[])
 static float AutoWallBestSpot(C_BasePlayer *player, Vector &bestSpot)
 {
 	float bestDamage = Settings::Aimbot::AutoWall::value;
-	const std::map<int, int> *modelType = Util::GetModelTypeBoneMap(player);
+	const std::unordered_map<int, int> *modelType = BoneMaps::GetModelTypeBoneMap(player);
 
 	static int len = sizeof(Settings::Aimbot::AutoAim::desiredBones) / sizeof(Settings::Aimbot::AutoAim::desiredBones[0]);
 
@@ -140,7 +83,7 @@ static float AutoWallBestSpot(C_BasePlayer *player, Vector &bestSpot)
 	{
 		if( !Settings::Aimbot::AutoAim::desiredBones[i] )
 			continue;
-		if( i == (int)DesiredBones::BONE_HEAD ) // head multipoint
+		if( i == CONST_BONE_HEAD ) // head multipoint
 		{
 			Vector headPoints[headVectors];
 			if( !HeadMultiPoint(player, headPoints) )
@@ -159,7 +102,7 @@ static float AutoWallBestSpot(C_BasePlayer *player, Vector &bestSpot)
 			}
 		}
 		int boneID = (*modelType).at(i);
-		if( boneID == (int)Bone::INVALID ) // bone not available on this modeltype.
+		if( boneID == BONE_INVALID ) // bone not available on this modeltype.
 			continue;
 
 		Vector bone3D = player->GetBonePosition(boneID);
@@ -226,7 +169,7 @@ static Vector GetClosestSpot( CUserCmd* cmd, C_BasePlayer* localPlayer, C_BasePl
 
 	Vector tempSpot = {0,0,0};
 
-	const std::map<int, int> *modelType = Util::GetModelTypeBoneMap(enemy);
+	const std::unordered_map<int, int> *modelType = BoneMaps::GetModelTypeBoneMap(enemy);
 
 	static int len = sizeof(Settings::Aimbot::AutoAim::desiredBones) / sizeof(Settings::Aimbot::AutoAim::desiredBones[0]);
 	for( int i = 0; i < len; i++ )
@@ -235,7 +178,7 @@ static Vector GetClosestSpot( CUserCmd* cmd, C_BasePlayer* localPlayer, C_BasePl
 			continue;
 
 		int boneID = (*modelType).at(i);
-		if( boneID == (int)Bone::INVALID )
+		if( boneID == BONE_INVALID )
 			continue;
 
 		Vector cbVecTarget = enemy->GetBonePosition(boneID);
@@ -579,23 +522,18 @@ static void AutoSlow(C_BasePlayer* player, float& forward, float& sideMove, floa
 {
 
 	if (!Settings::Aimbot::AutoSlow::enabled){
-		Settings::Aimbot::AutoSlow::goingToSlow = false;
 		return;
 	}
 
 	if (!player){
-		Settings::Aimbot::AutoSlow::goingToSlow = false;
 		return;
 	}
 
 	float nextPrimaryAttack = active_weapon->GetNextPrimaryAttack();
 
 	if (nextPrimaryAttack > globalVars->curtime){
-		Settings::Aimbot::AutoSlow::goingToSlow = false;
 		return;
 	}
-
-	Settings::Aimbot::AutoSlow::goingToSlow = true;
 
 	C_BasePlayer* localplayer = (C_BasePlayer*) entityList->GetClientEntity(engine->GetLocalPlayer());
 
@@ -924,7 +862,7 @@ void Aimbot::UpdateValues()
 	Settings::Aimbot::AutoSlow::enabled = currentWeaponSetting.autoSlow;
 	Settings::Aimbot::ScopeControl::enabled = currentWeaponSetting.scopeControlEnabled;
 
-	for (int bone = (int) DesiredBones::BONE_PELVIS; bone <= (int) DesiredBones::BONE_RIGHT_SOLE; bone++)
+	for (int bone = BONE_PELVIS; bone <= BONE_RIGHT_SOLE; bone++)
 		Settings::Aimbot::AutoAim::desiredBones[bone] = currentWeaponSetting.desiredBones[bone];
 
 	Settings::Aimbot::AutoAim::realDistance = currentWeaponSetting.autoAimRealDistance;
